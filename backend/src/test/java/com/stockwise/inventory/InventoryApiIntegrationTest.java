@@ -23,6 +23,7 @@ class InventoryApiIntegrationTest {
     void createsProductsAndOrdersAndRestoresStockOnCancellation() {
         JsonNode products = http.getForObject("/api/products", JsonNode.class);
         int originalQuantity = product(products, 1).path("quantity").asInt();
+        assertThat(product(products, 2).path("quantity").asInt()).isEqualTo(21);
 
         ResponseEntity<JsonNode> created = http.postForEntity("/api/products", Map.of(
                 "name", "Test Stand", "sku", "TEST-STAND", "category", "Test", "description", "Created by API test",

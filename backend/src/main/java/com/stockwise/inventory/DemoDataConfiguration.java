@@ -17,6 +17,8 @@ public class DemoDataConfiguration {
         products.save(new Product("27-inch Monitor","MON-27","Displays","27 inch QHD display",new BigDecimal("249.00"),0,4));
         products.save(new Product("Aluminum Laptop Stand","ST-ALU","Office","Adjustable aluminum stand",new BigDecimal("38.00"),32,8));
         products.save(new Product("HD Webcam","CAM-HD","Electronics","1080p USB webcam",new BigDecimal("59.00"),12,10));
+        keyboard.adjustQuantity(-2);
+        products.save(keyboard);
         orders.save(new PurchaseOrder("Avery Morgan",keyboard,2));
     };}
 }
