@@ -5,4 +5,10 @@ dist-ssr
 .env.*
 !.env.example
 *.log
+target/
+backend/target/
+.tooling/
+*.iml
+.idea/
+.vscode/
 

@@ -1,22 +1,51 @@
-# Inventory and Order Management System
+# Stockwise — Inventory and Order Management System
 
-A standalone React and Vite inventory management demo with clearly labeled sample products, orders, and historical sales. It runs independently of the mental-health awareness project.
+Standalone college project. The interface is a React + Vite app; the API and business rules run in **Java 17 / Spring Boot**, with **MySQL** as the production database. This repository is independent from the Mindbridge mental-health project.
 
-## Run locally
+## Run the presentation UI
 
 ```sh
 npm install
 npm run dev
 ```
 
-Open the local URL printed by Vite and go to `/inventory`.
+Open the Vite URL at `/inventory`. The default `VITE_API_MODE=demo` uses clearly labeled sample records stored in this browser. It is suitable for previewing the UI without a database.
 
-## Demo workspace
+## Run the Java API with an isolated demo database
 
-The default `VITE_API_MODE=demo` loads sample records marked **DEMO DATA**. Changes stay in a separate browser-local demo workspace. Use Settings to switch between demo data and an empty local workspace.
+Install Java 17+ and Maven 3.9+, then in one terminal:
 
-## Spring Boot API
+```sh
+mvn -f backend/pom.xml spring-boot:run -Dspring-boot.run.profiles=demo
+```
 
-The frontend can be pointed at a Spring Boot API with `VITE_API_MODE=spring` and `VITE_API_BASE_URL`. No Spring Boot or MySQL backend is included in this repository, and the API contract must match the backend before switching to Spring mode. The AI assistant remains unavailable until a backend assistant service is connected.
+The `demo` profile uses an in-memory H2 database and inserts explicitly illustrative sample products. It is reset when the backend stops. In `.env.local`, set `VITE_API_MODE=spring` and `VITE_API_BASE_URL=http://localhost:8080/api`, then restart Vite to exercise the Java API.
 
-Copy `.env.example` to `.env.local` and adjust public frontend configuration only. Never put credentials or API secrets in Vite variables.
+## Run with MySQL
+
+Create a MySQL database (or allow the configured local MySQL user to create `stockwise`), set environment variables, then run without the demo profile:
+
+```powershell
+$env:DB_URL='jdbc:mysql://localhost:3306/stockwise?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC'
+$env:DB_USERNAME='your-local-user'
+$env:DB_PASSWORD='your-local-password'
+mvn -f backend/pom.xml spring-boot:run
+```
+
+Never commit database credentials. The default profile uses MySQL; only the `demo` profile uses H2.
+
+## Implemented API
+
+| Method | Route | Purpose |
+|---|---|---|
+| GET / POST | `/api/products` | List and create products |
+| PUT / DELETE | `/api/products/{id}` | Update or delete a product (deletion is blocked when order history exists) |
+| GET / POST | `/api/orders` | List orders and place an order with transactional stock validation |
+| POST | `/api/orders/{id}/cancel` | Cancel a pending order and restore stock transactionally |
+| GET | `/api/analytics/sales` | Completed sales grouped by date; empty until completed orders exist |
+
+The assistant and forecasting services are not configured. The UI reports those as unavailable rather than generating pretend AI results. No paid AI, Firebase, or Supabase service is required.
+
+## Configuration
+
+Copy `.env.example` to `.env.local` for public frontend settings. Only `VITE_API_BASE_URL` and mode flags belong in frontend configuration; backend credentials must remain in the backend process environment.

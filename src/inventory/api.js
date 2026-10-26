@@ -31,8 +31,10 @@ async function request(path, options = {}) {
   try {
     const response = await fetch(`${base}${path}`, { ...options, signal: controller.signal, headers: { "Content-Type": "application/json", ...options.headers } });
     if (!response.ok) {
+      let detail = "";
+      try { const body = await response.json(); detail = body.message || body.detail || body.error || ""; } catch { /* Use a status-based message when the response has no JSON body. */ }
       const messages = { 400: "The request contains invalid information.", 401: "Please sign in to continue.", 403: "You do not have permission to do that.", 404: "This inventory service is not available.", 409: "This change conflicts with current data.", 500: "The server could not complete the request." };
-      throw new Error(messages[response.status] || `Request failed (${response.status}).`);
+      throw new Error(detail || messages[response.status] || `Request failed (${response.status}).`);
     }
     if (response.status === 204) return null;
     return response.json();
